@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>打音和他音發音練習：/t-/ & /th-/</title>
+    <title>粵語發音練習：/t-/ & /th-/</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Noto+Sans+HK:wght@400;700;900&display=swap');
@@ -141,12 +141,12 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen flex items-center justify-center relative">
+<body class="h-screen w-screen flex flex-col items-center justify-start relative overflow-y-auto">
 
     <!-- Title and Mode Selection -->
-    <div class="absolute top-2 sm:top-4 left-0 right-0 flex flex-col items-center z-10 p-2 sm:p-4 w-full">
+    <div class="w-full flex flex-col items-center z-10 p-2 sm:p-4 mt-4 sm:mt-8 flex-shrink-0">
         <h1 class="text-2xl sm:text-3xl md:text-5xl font-black text-pink-500 tracking-wider mb-4 sm:mb-6 text-center drop-shadow-md px-2" style="font-family: 'Noto Sans HK', sans-serif;">
-            🌟 打音和他音發音抽字機 🌟
+            🌟 打音他音發音抽字機 🌟
         </h1>
         
         <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-4">
@@ -174,7 +174,7 @@
     </div>
 
     <!-- Main Game Container -->
-    <div id="game-container" class="w-11/12 max-w-4xl rounded-3xl p-4 sm:p-8 md:p-12 flex flex-col items-center justify-center mt-44 sm:mt-52 md:mt-56 relative z-20 flex-grow max-h-[70vh]">
+    <div id="game-container" class="w-11/12 max-w-4xl rounded-3xl p-4 sm:p-8 md:p-12 flex flex-col items-center justify-center mt-4 sm:mt-8 mb-8 relative z-20 flex-grow min-h-[50vh] sm:min-h-[60vh]">
         
         <!-- Word Display Area -->
         <div class="h-64 sm:h-80 md:min-h-[22rem] w-full flex items-center justify-center relative bg-white bg-opacity-50 rounded-2xl border-2 border-dashed border-sky-300 mb-6 sm:mb-8 p-2 sm:p-4">
