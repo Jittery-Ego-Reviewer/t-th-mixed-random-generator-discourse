@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打音和他音發音練習：/t-/ & /th-/</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Noto+Sans+HK:wght@400;700;900&display=swap');
+
+        :root {
+            --primary: #FFB6C1; /* Light Pink */
+            --secondary: #87CEFA; /* Light Sky Blue */
+            --accent: #FFD700; /* Gold */
+            --bg-color: #f0fdf4; /* Very light green */
+            --text-color: #374151; /* Dark Gray for readability */
+        }
+
+        body {
+            font-family: 'Nunito', 'Noto Sans HK', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden; /* Prevent scrolling for a clean app feel */
+            /* Cute minimal pattern background */
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px), radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        /* Container for the main game area */
+        #game-container {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 4px solid white;
+        }
+
+        /* Word display area styling */
+        #word-display {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-3deg); }
+            75% { transform: translateX(5px) rotate(3deg); }
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 215, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+
+        .animate-pop {
+            animation: popIn 0.5s ease-out forwards;
+        }
+
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Custom Button Styles */
+        .cute-btn {
+            background-color: white;
+            border: 3px solid var(--primary);
+            color: var(--primary);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background-color: #fff0f5;
+        }
+
+        .cute-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cute-btn.active-mode {
+            background-color: var(--primary);
+            color: white;
+            border-color: #ff69b4;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border: none;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 0 #ff69b4, 0 10px 10px rgba(0,0,0,0.2);
+            transition: all 0.1s;
+        }
+        
+        .generate-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #ff69b4, 0 4px 4px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 640px) {
+            #game-container {
+                margin-top: 14rem;
+                padding: 1.5rem;
+                width: 95%;
+            }
+            .cute-btn {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
+            #word-count-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Floating particles for extra cuteness */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 50;
+        }
+        
+        @keyframes float-up {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex items-center justify-center relative">
+
+    <!-- Title and Mode Selection -->
+    <div class="absolute top-2 sm:top-4 left-0 right-0 flex flex-col items-center z-10 p-2 sm:p-4 w-full">
+        <h1 class="text-2xl sm:text-3xl md:text-5xl font-black text-pink-500 tracking-wider mb-4 sm:mb-6 text-center drop-shadow-md px-2" style="font-family: 'Noto Sans HK', sans-serif;">
+            🌟 打音和他音發音抽字機 🌟
+        </h1>
+        
+        <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-4">
+            <button id="mode-all" class="cute-btn active-mode font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full text-base sm:text-lg md:text-xl flex items-center gap-2">
+                📚 全部字詞
+            </button>
+            <button id="mode-island" class="cute-btn font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full text-base sm:text-lg md:text-xl flex items-center gap-2">
+                🏝️ 荒島求生
+            </button>
+        </div>
+
+        <div id="word-count-container" class="flex flex-row items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-md border-2 border-pink-200 transition-all duration-300 hover:shadow-lg hover:border-pink-300">
+            <label for="word-count" class="font-bold text-gray-700 text-base sm:text-lg md:text-xl">抽幾多個字？</label>
+            <select id="word-count" class="bg-pink-50 font-black text-pink-600 outline-none cursor-pointer text-lg sm:text-xl md:text-2xl rounded-xl px-2 py-1 sm:px-3 sm:py-1 border border-pink-200 shadow-inner">
+                <option value="1">1個</option>
+                <option value="3">3個</option>
+                <option value="4">4個</option>
+                <option value="5">5個</option>
+                <option value="6">6個</option>
+                <option value="7">7個</option>
+                <option value="8">8個</option>
+                <option value="9">9個</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div id="game-container" class="w-11/12 max-w-4xl rounded-3xl p-4 sm:p-8 md:p-12 flex flex-col items-center justify-center mt-44 sm:mt-52 md:mt-56 relative z-20 flex-grow max-h-[70vh]">
+        
+        <!-- Word Display Area -->
+        <div class="h-64 sm:h-80 md:min-h-[22rem] w-full flex items-center justify-center relative bg-white bg-opacity-50 rounded-2xl border-2 border-dashed border-sky-300 mb-6 sm:mb-8 p-2 sm:p-4">
+            <div id="instruction-text" class="text-xl sm:text-2xl md:text-3xl text-gray-400 font-bold absolute w-full text-center px-4">
+                按下面按鈕開始！👇
+            </div>
+            <div id="word-display" class="flex flex-wrap items-center justify-center content-center gap-x-3 sm:gap-x-6 gap-y-2 sm:gap-y-4 opacity-0 scale-50 absolute w-full h-full inset-0 p-2 sm:p-4 md:p-8 overflow-y-auto">
+                <!-- Word will appear here -->
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button id="generate-btn" class="generate-btn font-black text-2xl sm:text-3xl md:text-4xl py-3 px-8 sm:py-4 sm:px-12 md:px-16 rounded-full flex items-center gap-2 sm:gap-4 whitespace-nowrap">
+            <span>抽字！</span>
+            <span class="text-3xl sm:text-4xl">🎲</span>
+        </button>
+
+    </div>
+
+    <script>
+        // Word lists provided by the user
+        const wordsAll = [
+            "貓頭鷹🦉", "海豚🐬", "鴕鳥𓅦", "兩條薯條🍟", "甜品🍨", "湯圓", "鐵板燒", 
+            "貼紙", "TicTac糖🍬", "牧童笛", "糖水", "馬桶🚽", "枱布", "天橋", 
+            "停車場🅿️", "沙灘🏖", "跳舞💃", "彈鋼琴🎹", "彈結他🎸", "雞湯", 
+            "天空", "圖片", "上堂", "手套", "糖🍬", "頭髮", "田灣", "填色比賽🎨", 
+            "食楊桃⭐", "踢", "樓梯", "體育堂⛹️", "教堂⛪", "通粉", "水桶🪣", 
+            "屯門", "飯糰🍙", "滑梯🛝", "提醒", "泥土", "推開", "同學", "泰國", 
+            "頭痛", "銅牌🥉", "童軍", "逃跑", "涼亭", "貪心", "坦白", "探險", 
+            "透明", "萬花筒", "嘆氣😮‍💨", "兔仔🐇", "叮噹", "臭豆腐", "意大利粉🍝", 
+            "多士🍞", "的士🚕", "長凳", "釘", "電視機📺", "花朵🌸", "電車🚋", 
+            "掉垃圾🗑", "釣魚🎣", "端午節", "電話☎️", "跑道", "花店", "便利店", 
+            "倒瀉", "燈飾", "動物", "答案", "蛋", "迪士尼", "短袖衫", "檔案", 
+            "手袋", "冬天", "蝴蝶", "德國", "滴水", "但係", "覺得", "的", "突然", 
+            "點知", "都", "定係", "地拖", "頭箍", "蛋撻", "蛋糕🍰", "雞蛋🥚", 
+            "電筒🔦", "搭地鐵🚇", "跳彈床", "拖鞋", "今天📅", "天氣☀️🌧️", 
+            "布丁狗", "焦糖燉蛋🍮", "枕頭🛏️", "颱風🌪️", "風筒", "床單🛏️", 
+            "堆填區", "天花板", "條", "沙爹牛肉麵🍜", "「登登登登！」🎶"
+        ];
+
+        const wordsIsland = [
+            "薯條🍟", "湯圓", "貼紙", "TicTac糖🍬", "牧童笛", "一碗糖水", "馬桶🚽", 
+            "一塊枱布", "鋼琴🎹", "結他🎸", "一碗雞湯", "手套", "糖🍬", "通粉", 
+            "水桶🪣", "飯糰🍙", "銅牌🥉", "萬花筒", "叮噹", "臭豆腐", "意大利粉🍝", 
+            "多士🍞", "長凳", "釘", "電視機📺", "花朵🌸", "電話☎️", "燈飾", "手袋", 
+            "地拖", "頭箍", "蛋撻", "蛋糕🍰", "雞蛋🥚", "電筒🔦", "拖鞋", "枕頭🛏️", 
+            "床單🛏️", "沙爹牛肉麵🍜", "炸彈💣"
+        ];
+
+        let currentMode = 'all'; // 'all' or 'island'
+        let currentWordList = [...wordsAll]; // Working copy of the list
+
+        const btnModeAll = document.getElementById('mode-all');
+        const btnModeIsland = document.getElementById('mode-island');
+        const btnGenerate = document.getElementById('generate-btn');
+        const wordDisplay = document.getElementById('word-display');
+        const instructionText = document.getElementById('instruction-text');
+        const wordCountContainer = document.getElementById('word-count-container');
+        const wordCountSelect = document.getElementById('word-count');
+
+        // Audio Context setup (must be resumed on user interaction)
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Generate a cute "ding" or "pop" sound
+        function playCuteSound() {
+            if (!audioCtx) return;
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            // Settings for a cute, bright sound
+            oscillator.type = 'sine';
+            
+            // Frequency sweep up
+            const now = audioCtx.currentTime;
+            oscillator.frequency.setValueAtTime(440, now); // Start at A4
+            oscillator.frequency.exponentialRampToValueAtTime(880, now + 0.1); // Quick sweep to A5
+
+            // Volume envelope (quick attack, short decay)
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.5, now + 0.05); // Attack
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3); // Decay
+
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+        }
+
+        function createParticles(x, y) {
+            const emojis = ['✨', '⭐', '🎵', '🌸', '💖'];
+            const container = document.body;
+            
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random emoji
+                particle.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // Position near the center but slightly randomized
+                const offsetX = (Math.random() - 0.5) * 100;
+                const offsetY = (Math.random() - 0.5) * 100;
+                particle.style.left = `calc(50% + ${offsetX}px)`;
+                particle.style.top = `calc(50% + ${offsetY}px)`;
+                particle.style.fontSize = `${Math.random() * 20 + 20}px`;
+                
+                // Random float direction via CSS variables if we wanted, but we'll use inline animation
+                particle.style.animation = `float-up ${0.8 + Math.random() * 0.5}s ease-out forwards`;
+                
+                container.appendChild(particle);
+                
+                // Cleanup
+                setTimeout(() => {
+                    particle.remove();
+                }, 1500);
+            }
+        }
+
+        function getRandomWord() {
+            // Refill list if empty to ensure endless play
+            if (currentWordList.length === 0) {
+                currentWordList = currentMode === 'all' ? [...wordsAll] : [...wordsIsland];
+            }
+
+            // Pick a random index
+            const randomIndex = Math.floor(Math.random() * currentWordList.length);
+            // Remove and get the word (prevents immediate repeats)
+            const word = currentWordList.splice(randomIndex, 1)[0];
+            
+            return word;
+        }
+
+        function generateNextWord(e) {
+            initAudio(); // Ensure audio is ready
+            
+            // Hide instruction text on first click
+            if (instructionText.style.display !== 'none') {
+                instructionText.style.display = 'none';
+            }
+
+            // Determine how many words to generate
+            const count = currentMode === 'all' ? parseInt(wordCountSelect.value) : 1;
+
+            // Reset animation
+            wordDisplay.classList.remove('animate-pop');
+            wordDisplay.innerHTML = ''; // Clear previous words
+            
+            // Add a small delay to allow CSS to reset, then apply new word and animate
+            setTimeout(() => {
+                const colors = ['text-pink-600', 'text-sky-600', 'text-amber-500', 'text-emerald-500', 'text-purple-600'];
+                
+                for(let i=0; i<count; i++) {
+                    const newWord = getRandomWord();
+                    const wordSpan = document.createElement('span');
+                    wordSpan.innerText = newWord;
+                    
+                    // Adjust sizing based on count and screen size
+                    let sizeClass = "";
+                    if (count === 1) {
+                        if (newWord.length > 8) sizeClass = "text-3xl sm:text-4xl md:text-6xl";
+                        else if (newWord.length > 5) sizeClass = "text-4xl sm:text-5xl md:text-7xl";
+                        else sizeClass = "text-5xl sm:text-6xl md:text-8xl";
+                    } else if (count <= 4) {
+                        sizeClass = "text-3xl sm:text-4xl md:text-5xl";
+                    } else if (count <= 6) {
+                        sizeClass = "text-2xl sm:text-3xl md:text-4xl";
+                    } else {
+                        sizeClass = "text-xl sm:text-2xl md:text-3xl";
+                    }
+
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    wordSpan.className = `${sizeClass} font-black leading-tight break-words ${randomColor} drop-shadow-sm m-1 sm:m-2 text-center transition-transform hover:scale-110 duration-200`;
+                    
+                    wordDisplay.appendChild(wordSpan);
+                }
+
+                wordDisplay.classList.add('animate-pop');
+                
+                // Play sound and show particles
+                playCuteSound();
+                createParticles();
+                
+            }, 50);
+        }
+
+        function switchMode(mode) {
+            initAudio();
+            currentMode = mode;
+            
+            // Update button styles
+            if (mode === 'all') {
+                btnModeAll.classList.add('active-mode');
+                btnModeIsland.classList.remove('active-mode');
+                currentWordList = [...wordsAll];
+                wordCountContainer.style.display = 'flex';
+                wordCountContainer.classList.add('animate-pop');
+            } else {
+                btnModeIsland.classList.add('active-mode');
+                btnModeAll.classList.remove('active-mode');
+                currentWordList = [...wordsIsland];
+                wordCountContainer.style.display = 'none';
+            }
+
+            // Reset display
+            wordDisplay.classList.remove('animate-pop');
+            wordDisplay.style.opacity = '';
+            wordDisplay.innerHTML = '';
+            instructionText.style.display = '';
+            instructionText.innerText = `已切換至 ${mode === 'all' ? '全部字詞' : '荒島求生'} 模式！`;
+            
+            // Little UI feedback
+            document.getElementById('game-container').classList.add('animate-shake');
+            setTimeout(() => {
+                document.getElementById('game-container').classList.remove('animate-shake');
+            }, 400);
+        }
+
+        // Attach listeners
+        btnModeAll.addEventListener('click', () => switchMode('all'));
+        btnModeIsland.addEventListener('click', () => switchMode('island'));
+        
+        // Handle touch and click for the generate button
+        btnGenerate.addEventListener('click', generateNextWord);
+        btnGenerate.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent double firing on touch devices
+            generateNextWord(e);
+        }, {passive: false});
+
+    </script>
+</body>
+</html>
